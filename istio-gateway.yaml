@@ -1,3 +1,5 @@
+#Istio gateway is a Kubernetes resource that defines a load balancer that operates at the edge of the mesh, receiving incoming requests and forwarding them to the appropriate service within the mesh.
+
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
