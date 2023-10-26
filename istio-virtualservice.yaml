@@ -1,0 +1,132 @@
+# A VirtualService defines a set of traffic routing rules to apply when a host is addressed. Each routing rule defines matching criteria for traffic of a specific protocol. 
+# If the traffic is matched, then it is sent to a named destination service (or subset/version of it) defined in the registry.
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService 
+metadata: 
+  name: jwt-auth-vs
+  namespace: dlframe
+spec:
+  gateways:
+  - dlframe-gateway
+  hosts:
+  - jwt-auth.dev.dlframe.com
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: jwt-auth.dlframe.svc.cluster.local
+        port:
+          number: 9000
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata: 
+  name: models-api-vs
+  namespace: dlframe
+spec:
+  gateways:
+  - dlframe-gateway
+  hosts:
+  - models-api.dev.dlframe.com
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: models-api.dlframe.svc.cluster.local
+        port:
+          number: 9000
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: k8s-api-vs
+  namespace: dlframe
+spec:
+  gateways:
+    - dlframe-gateway
+  hosts:
+    - k8s-api.dev.dlframe.com
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: k8s-api.dlframe.svc.cluster.local
+            port:
+              number: 9000
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: inference-api-vs
+  namespace: dlframe
+spec:
+  gateways:
+    - dlframe-gateway
+  hosts:
+    - inference-api.dev.dlframe.com
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: inference-api.dlframe.svc.cluster.local
+            port:
+              number: 9000
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sqprepid1-vs
+  namespace: models
+spec:
+  gateways:
+    - models-gateway
+  hosts:
+    - model-inference.dev.dlframe.com
+  http:
+    - match:
+        - uri:
+            prefix: /sqprepid1
+      route:
+        - destination:
+            host: sqprepid1.models.svc.cluster.local
+            port:
+              number: 9000
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: yolo-localization-occ-v06tl-vs
+  namespace: models
+spec:
+  gateways:
+    - models-gateway
+  hosts:
+    - model-inference.dev.dlframe.com
+  http:
+    - match:
+        - uri:
+            prefix: /yolo-localization-occ-v06tl
+      route:
+        - destination:
+            host: yolo-localization-occ-v06tl.models.svc.cluster.local
+            port:
+              number: 9000
