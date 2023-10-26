@@ -1,0 +1,78 @@
+# DestinationRule defines policies that apply to traffic intended for a service after routing has occurred. 
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: jwt-auth-destinationrule
+  namespace: dlframe
+spec:
+  host: jwt-auth.dlframe.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: models-api-destinationrule
+  namespace: dlframe
+spec:
+  host: models-api.dlframe.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: k8s-api-destinationrule
+  namespace: dlframe
+spec:
+  host: k8s-api.dlframe.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: inference-api-destinationrule
+  namespace: dlframe
+spec:
+  host: inference-api.dlframe.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: sqprepid1-dr
+  namespace: models
+spec:
+  host: sqprepid1.models.svc.cluster.local  
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: yolo-localization-occ-v06tl-dr 
+  namespace: models
+spec:
+  host: yolo-localization-occ-v06tl.models.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+
