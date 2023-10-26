@@ -1,0 +1,59 @@
+stages:
+- set_aws_auth  
+- deploy_dev_route
+
+variables:
+  AWS_DEFAULT_REGION: us-east-1
+  NAMESPACE: dlframe
+  DLFRAME_DEV_CLUSTER: dlframe-dev-eks    
+
+set_aws_auth:
+  stage: set_aws_auth
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  tags:
+    - dlframe-dev
+  script: 
+    - mkdir set_aws_auth
+    - cd set_aws_auth
+    - aws sts assume-role --role-arn $IAM_DEV_ROLE --role-session-name Gitlab_EKS_Access --region $AWS_DEFAULT_REGION >> creds.json   
+    - export AWS_ACCESS_KEY_ID=$(jq -r '.Credentials.AccessKeyId' creds.json)  
+    - export AWS_SECRET_ACCESS_KEY=$(jq -r '.Credentials.SecretAccessKey' creds.json)   
+    - export AWS_SESSION_TOKEN=$(jq -r '.Credentials.SessionToken' creds.json)
+    - echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> .env
+    - echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> .env
+    - echo "AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}" >> .env
+    - cat .env
+  artifacts:
+    paths:
+      - "./set_aws_auth/.env"
+    expire_in: 50 minutes
+
+Dev Route:
+    stage: deploy_dev_route
+    environment: dev
+    image: lanru2001/awscli-helm-kubectl:latest
+    tags:
+    - dlframe-dev
+    only:
+      - master
+    when: manual  
+    dependencies:
+    - set_aws_auth
+    script:
+      - cd set_aws_auth
+      - export $(cat .env | xargs)
+      - cat .env
+      #=========================================================================================================================
+      # Update Kubeconfig and set context to the dlframe namespace
+      #================== =======================================================================================================
+      - aws eks  --region $AWS_DEFAULT_REGION  update-kubeconfig --name $DLFRAME_DEV_CLUSTER
+      - kubectl config set-context --current --namespace=$NAMESPACE
+      #================== =======================================================================================================
+      # These two files are the ones that need to be modify after adding new service(s)
+      #================== =======================================================================================================
+      - cd /builds/glidewell/dlframe/istio-kube-route/
+      - kubectl apply -f  ./istio-gateway.yaml
+      - kubectl apply -f  ./istio-destinationrule.yaml
+      - kubectl apply -f  ./istio-virtualservice.yaml
+      - kubectl apply -f  ./istio-authentication.yaml
+      - kubectl apply -f  ./istio-authpolicy.yaml
